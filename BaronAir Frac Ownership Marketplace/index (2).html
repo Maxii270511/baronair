@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>BaronAir Fractional Ownership</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Inter:wght@400;500;600&display=swap&subset=latin,cyrillic">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.58.0/dist/umd/supabase.js"></script>
+<style>
+:root{--bg:#0a0f1a;--card:#111826;--ink:#f1ece0;--mute:#9aa4b5;--line:#2a3347;--acc:#c9a24b;--acc2:#e3c77a;--ok:#7fd1a4;--err:#ff9d8a;color-scheme:dark;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:radial-gradient(1200px 500px at 50% -150px,#16213a 0,var(--bg) 70%) no-repeat,var(--bg);color:var(--ink);font:16px/1.5 Inter,system-ui,-apple-system,"Segoe UI",sans-serif}
+.wrap{max-width:1100px;margin:0 auto;padding:0 16px}
+.top{display:flex;justify-content:flex-end;align-items:center;gap:12px;padding:12px 0;color:var(--mute);font-size:.85rem}
+#lang{width:auto;padding:6px 8px;font-size:.82rem}
+header{padding:36px 20px 44px;text-align:center;border-bottom:1px solid var(--acc)}
+.eyebrow{letter-spacing:.35em;text-transform:uppercase;font-size:.72rem;color:var(--acc);margin-bottom:14px}
+h1{font-family:"Cormorant Garamond",Georgia,serif;font-weight:600;font-size:clamp(2rem,5vw,3.4rem);margin:0 0 12px}
+header p{margin:0 auto;max-width:640px;color:var(--mute)}
+header .gold{display:block;width:64px;height:1px;background:var(--acc);margin:20px auto 0}
+.notice{border:1px solid var(--line);border-left:2px solid var(--acc);border-radius:8px;padding:10px 14px;margin:16px 0;color:var(--mute);font-size:.82rem}
+.bar{display:flex;flex-wrap:wrap;gap:10px;margin:16px 0;align-items:end;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px}
+.bar label{display:flex;flex-direction:column;font-size:.68rem;letter-spacing:.08em;text-transform:uppercase;color:var(--mute);gap:3px;flex:1 1 150px}
+input,select,textarea{font:inherit;padding:9px 10px;border:1px solid var(--line);border-radius:8px;background:#0a0f1a;color:var(--ink);width:100%}
+input:focus,select:focus,textarea:focus{outline:1px solid var(--acc);border-color:var(--acc)}
+button{font:inherit;cursor:pointer;border:0;border-radius:8px;padding:10px 16px;background:linear-gradient(135deg,#e3c77a,#b88a2e);color:#14100a;letter-spacing:.06em;text-transform:uppercase;font-size:.78rem;font-weight:700;transition:filter .2s,transform .2s}
+button:hover{filter:brightness(1.08);transform:translateY(-1px)}
+button.ghost{background:transparent;color:var(--acc);border:1px solid var(--acc)}
+button.link{background:none;border:0;padding:0;color:var(--mute);text-transform:none;letter-spacing:0;font-weight:500;text-decoration:underline;font-size:.82rem}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:22px;margin-bottom:40px}
+.card{background:linear-gradient(180deg,#141c2d,#0e1523);border:1px solid var(--line);border-radius:16px;padding:22px;display:flex;flex-direction:column;gap:10px;transition:border-color .25s,transform .25s,box-shadow .25s}
+.card:hover{border-color:var(--acc);transform:translateY(-3px);box-shadow:0 14px 34px rgba(0,0,0,.45)}
+.card h3{margin:0;font-family:"Cormorant Garamond",Georgia,serif;font-size:1.55rem;font-weight:600}
+.tag{display:inline-block;border:1px solid var(--acc);color:var(--acc);letter-spacing:.14em;text-transform:uppercase;font-size:.62rem;padding:3px 10px;border-radius:99px}
+.price{font-family:"Cormorant Garamond",Georgia,serif;font-size:2rem;font-weight:600;color:var(--acc2)}
+.meta{display:grid;grid-template-columns:1fr 1fr;gap:4px 12px;font-size:.82rem;color:var(--mute);border-top:1px solid var(--line);padding-top:12px}
+.meta b{color:var(--ink);font-weight:600}.free{color:var(--ok);font-weight:600;font-size:.85rem}
+.row{display:flex;gap:8px;margin-top:auto}.row button{flex:1}
+.sec{display:flex;justify-content:space-between;align-items:center;margin-top:24px}
+h2{font-family:"Cormorant Garamond",Georgia,serif;font-weight:600;font-size:1.8rem;margin:0}
+.item{border:1px solid var(--line);border-radius:12px;padding:12px 16px;margin:8px 0;background:var(--card);font-size:.9rem}
+.item small{color:var(--mute)}.st{color:var(--acc2)}
+dialog{border:1px solid var(--acc);border-radius:14px;background:var(--card);color:var(--ink);max-width:560px;width:calc(100% - 24px);padding:20px;box-shadow:0 30px 80px rgba(0,0,0,.6)}
+dialog::backdrop{background:rgba(0,0,0,.6)}dialog h2{margin-bottom:10px}
+form{display:grid;gap:10px}.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.empty{padding:30px;text-align:center;color:var(--mute)}
+.toast{position:fixed;left:50%;bottom:24px;transform:translate(-50%,20px);background:var(--card);border:1px solid var(--acc);padding:12px 18px;border-radius:10px;opacity:0;pointer-events:none;transition:.3s;max-width:90%;z-index:9}
+.toast.show{opacity:1;transform:translate(-50%,0)}.toast.err{border-color:var(--err);color:var(--err)}
+footer{border-top:1px solid var(--line);padding:24px 16px 40px;text-align:center;color:var(--mute);font-size:.68rem;letter-spacing:.12em;text-transform:uppercase}
+footer a{color:var(--mute)}
+</style>
+</head>
+<body>
+<div class="wrap top"><select id="lang" aria-label="Language"><option value="de">Deutsch</option><option value="en">English</option><option value="es">Español</option><option value="ru">Русский</option></select><span id="authBox"></span></div>
+<header><div class="wrap"><div class="eyebrow">BaronAir Group</div><h1>Fractional Ownership</h1>
+<p data-t="sub"></p><span class="gold"></span></div></header>
+
+<main class="wrap">
+<div class="notice" data-t="notice"></div>
+<div class="bar">
+<label><span data-t="search"></span><input id="q" data-p="searchPh"></label>
+<label><span data-t="cat"></span><select id="cat"><option value="" data-t="all"></option><option value="Kolbenmotor" data-t="c_Kolbenmotor"></option><option value="Turboprop">Turboprop</option><option value="Jet">Jet</option></select></label>
+<label><span data-t="max"></span><input id="max" type="number" min="0" step="5000" data-p="maxPh"></label>
+<label><span data-t="sort"></span><select id="sort"><option value="p" data-t="s_p"></option><option value="pd" data-t="s_pd"></option><option value="f" data-t="s_f"></option></select></label>
+<button id="newBtn" data-t="newBtn"></button>
+</div>
+<div id="grid" class="grid"></div>
+
+<section id="mine" hidden>
+<div class="sec"><h2 data-t="myL"></h2></div><div id="myL"></div>
+<div class="sec"><h2 data-t="myI"></h2></div><div id="myI" style="margin-bottom:40px"></div>
+</section>
+</main>
+
+<dialog id="dAuth"><h2 id="aT"></h2>
+<form id="fAuth">
+<input id="aN" data-p="name" autocomplete="name" hidden>
+<input id="aE" type="email" data-p="email" autocomplete="email" required>
+<input id="aP" type="password" data-p="pw" minlength="8" autocomplete="current-password" required>
+<div class="two"><button type="button" class="ghost" data-close data-t="cancel"></button><button id="aGo"></button></div>
+<button type="button" class="link" id="aSw"></button>
+<button type="button" class="link" id="aRs" data-t="forgot"></button>
+</form></dialog>
+
+<dialog id="dInq"><h2 id="iT"></h2>
+<form id="fInq">
+<textarea id="iM" rows="4" data-p="inqPh" required></textarea>
+<div class="two"><button type="button" class="ghost" data-close data-t="cancel"></button><button data-t="inqSend"></button></div></form></dialog>
+
+<dialog id="dNew"><h2 data-t="newT"></h2>
+<form id="fNew">
+<div class="two"><input id="nM" data-p="nModel" required><select id="nC"><option value="Kolbenmotor" data-t="c_Kolbenmotor"></option><option value="Turboprop">Turboprop</option><option value="Jet">Jet</option></select></div>
+<div class="two"><input id="nL" data-p="nLoc" required><input id="nY" type="number" data-p="nYear" min="1960" max="2026"></div>
+<div class="two"><input id="nP" type="number" data-p="nPrice" min="0" required><input id="nF" type="number" data-p="nFree" min="1" required></div>
+<div class="two"><input id="nT" type="number" data-p="nTotal" min="1" required><input id="nK" type="number" data-p="nCost" min="0" required></div>
+<textarea id="nD" rows="3" data-p="nDesc"></textarea>
+<div class="two"><button type="button" class="ghost" data-close data-t="cancel"></button><button data-t="nSubmit"></button></div></form></dialog>
+
+<div id="toast" class="toast"></div>
+<footer>BaronAir Group · <a href="impressum.html" data-t="imprint"></a></footer>
+
+<script>
+const SUPABASE_URL="https://gctbyppcudtxpjwdxmmw.supabase.co";
+const SUPABASE_KEY="sb_publishable_XOGQ9ZvO88P9RUoLbz41PA_46Q3DEAm";
+
+/* ---------- Übersetzungen / Translations ---------- */
+const LOC={de:"de-DE",en:"en-GB",es:"es-ES",ru:"ru-RU"};
+const L={
+de:{sub:"Der exklusive Marktplatz für Haltergemeinschaften: Anbieter finden Miteigentümer, Interessenten finden den passenden Flugzeuganteil.",
+notice:"BaronAir tritt ausschließlich als Vermittler auf. Wir sind weder Vertragspartei noch Mitglied einer Haltergemeinschaft und erstellen keine Verträge. Neue Inserate werden vor der Veröffentlichung geprüft.",
+search:"Suche",searchPh:"Muster, Standort …",cat:"Kategorie",all:"Alle",c_Kolbenmotor:"Kolbenmotor",max:"Max. Anteilspreis (€)",maxPh:"z. B. 150000",sort:"Sortierung",s_p:"Preis aufsteigend",s_pd:"Preis absteigend",s_f:"Freie Anteile",
+newBtn:"+ Anteil inserieren",myL:"Meine Inserate",myI:"Anfragen",
+login:"Anmelden",register:"Registrieren",createT:"Konto erstellen",noAcc:"Noch kein Konto? Registrieren",hasAcc:"Schon ein Konto? Anmelden",forgot:"Passwort vergessen?",logout:"Abmelden",
+name:"Name",email:"E-Mail",pw:"Passwort (mind. 8 Zeichen)",cancel:"Abbrechen",
+inqPh:"Nachricht an die Haltergemeinschaft (Fliegererfahrung, Lizenz, Erwartungen)",inqSend:"Anfrage senden",contact:"Kontakt",
+newT:"Anteil inserieren",nModel:"Muster (z. B. Piper M600)",nLoc:"Standort (ICAO, z. B. EDFE)",nYear:"Baujahr",nPrice:"Preis je Anteil (€)",nFree:"Freie Anteile",nTotal:"Anteile gesamt",nCost:"Fixkosten/Monat je Anteil (€)",nDesc:"Beschreibung der Haltergemeinschaft",nSubmit:"Zur Prüfung einreichen",
+perShare:"je Anteil",freeOf:"{f} von {t} Anteilen frei",lLoc:"Standort",lYear:"Baujahr",lCost:"Fixkosten",perMonth:"/Monat",lShare:"Anteil",sendInq:"Anfrage senden",
+empty:"Noch keine Inserate vorhanden.",noMine:"Du hast noch kein Inserat eingereicht.",noInq:"Noch keine Anfragen.",del:"Löschen",sent:"Gesendet",recv:"Erhalten",
+st_pending:"in Prüfung",st_approved:"veröffentlicht",st_rejected:"abgelehnt",imprint:"Impressum",
+eLoad:"Inserate konnten nicht geladen werden: ",bye:"Du wurdest abgemeldet.",needEmail:"Bitte zuerst die E-Mail-Adresse eingeben.",resetSent:"Wir haben dir einen Link zum Zurücksetzen gesendet.",welcome:"Willkommen zurück!",created:"Konto erstellt.",confirmMail:"Fast geschafft: Bitte bestätige deine E-Mail-Adresse über den Link in der Mail.",
+needLoginInq:"Bitte melde dich an, um eine Anfrage zu senden.",inqFail:"Anfrage fehlgeschlagen: ",inqOk:"Anfrage gesendet.",needLoginNew:"Bitte melde dich an, um ein Inserat einzureichen.",tooMany:"Freie Anteile dürfen nicht größer sein als die Gesamtzahl.",newFail:"Inserat fehlgeschlagen: ",newOk:"Inserat eingereicht. Es erscheint nach unserer Prüfung.",delAsk:"Inserat wirklich löschen?",deleted:"Inserat gelöscht.",noSb:"Verbindung zu Supabase konnte nicht geladen werden."},
+en:{sub:"The exclusive marketplace for aircraft ownership groups: sellers find co-owners, buyers find the right aircraft share.",
+notice:"BaronAir acts solely as an intermediary. We are neither a contracting party nor a member of any ownership group, and we do not draw up contracts. New listings are reviewed before publication.",
+search:"Search",searchPh:"Type, location …",cat:"Category",all:"All",c_Kolbenmotor:"Piston engine",max:"Max. share price (€)",maxPh:"e.g. 150000",sort:"Sort by",s_p:"Price ascending",s_pd:"Price descending",s_f:"Available shares",
+newBtn:"+ List a share",myL:"My listings",myI:"Inquiries",
+login:"Sign in",register:"Register",createT:"Create account",noAcc:"No account yet? Register",hasAcc:"Already have an account? Sign in",forgot:"Forgot password?",logout:"Sign out",
+name:"Name",email:"Email",pw:"Password (min. 8 characters)",cancel:"Cancel",
+inqPh:"Message to the ownership group (flying experience, licence, expectations)",inqSend:"Send inquiry",contact:"Contact",
+newT:"List a share",nModel:"Type (e.g. Piper M600)",nLoc:"Location (ICAO, e.g. EDFE)",nYear:"Year built",nPrice:"Price per share (€)",nFree:"Available shares",nTotal:"Total shares",nCost:"Fixed costs/month per share (€)",nDesc:"Description of the ownership group",nSubmit:"Submit for review",
+perShare:"per share",freeOf:"{f} of {t} shares available",lLoc:"Location",lYear:"Year built",lCost:"Fixed costs",perMonth:"/month",lShare:"Share",sendInq:"Send inquiry",
+empty:"No listings yet.",noMine:"You have not submitted a listing yet.",noInq:"No inquiries yet.",del:"Delete",sent:"Sent",recv:"Received",
+st_pending:"under review",st_approved:"published",st_rejected:"rejected",imprint:"Legal notice",
+eLoad:"Listings could not be loaded: ",bye:"You have been signed out.",needEmail:"Please enter your email address first.",resetSent:"We have sent you a link to reset your password.",welcome:"Welcome back!",created:"Account created.",confirmMail:"Almost done: please confirm your email address using the link in the message.",
+needLoginInq:"Please sign in to send an inquiry.",inqFail:"Inquiry failed: ",inqOk:"Inquiry sent.",needLoginNew:"Please sign in to submit a listing.",tooMany:"Available shares cannot exceed the total number of shares.",newFail:"Listing failed: ",newOk:"Listing submitted. It will appear after our review.",delAsk:"Really delete this listing?",deleted:"Listing deleted.",noSb:"Could not load the connection to Supabase."},
+es:{sub:"El mercado exclusivo para comunidades de propietarios de aeronaves: los vendedores encuentran copropietarios, los interesados encuentran la participación adecuada.",
+notice:"BaronAir actúa exclusivamente como intermediario. No somos parte contratante ni miembro de ninguna comunidad de propietarios y no redactamos contratos. Los nuevos anuncios se revisan antes de su publicación.",
+search:"Buscar",searchPh:"Modelo, ubicación …",cat:"Categoría",all:"Todas",c_Kolbenmotor:"Motor de pistón",max:"Precio máx. por participación (€)",maxPh:"p. ej. 150000",sort:"Ordenar por",s_p:"Precio ascendente",s_pd:"Precio descendente",s_f:"Participaciones libres",
+newBtn:"+ Anunciar participación",myL:"Mis anuncios",myI:"Consultas",
+login:"Iniciar sesión",register:"Registrarse",createT:"Crear cuenta",noAcc:"¿Aún no tienes cuenta? Regístrate",hasAcc:"¿Ya tienes cuenta? Inicia sesión",forgot:"¿Olvidaste la contraseña?",logout:"Cerrar sesión",
+name:"Nombre",email:"Correo electrónico",pw:"Contraseña (mín. 8 caracteres)",cancel:"Cancelar",
+inqPh:"Mensaje a la comunidad de propietarios (experiencia de vuelo, licencia, expectativas)",inqSend:"Enviar consulta",contact:"Contacto",
+newT:"Anunciar participación",nModel:"Modelo (p. ej. Piper M600)",nLoc:"Ubicación (OACI, p. ej. EDFE)",nYear:"Año de fabricación",nPrice:"Precio por participación (€)",nFree:"Participaciones libres",nTotal:"Participaciones totales",nCost:"Costes fijos/mes por participación (€)",nDesc:"Descripción de la comunidad de propietarios",nSubmit:"Enviar para revisión",
+perShare:"por participación",freeOf:"{f} de {t} participaciones libres",lLoc:"Ubicación",lYear:"Año",lCost:"Costes fijos",perMonth:"/mes",lShare:"Participación",sendInq:"Enviar consulta",
+empty:"Aún no hay anuncios.",noMine:"Todavía no has enviado ningún anuncio.",noInq:"Aún no hay consultas.",del:"Eliminar",sent:"Enviada",recv:"Recibida",
+st_pending:"en revisión",st_approved:"publicado",st_rejected:"rechazado",imprint:"Aviso legal",
+eLoad:"No se pudieron cargar los anuncios: ",bye:"Has cerrado sesión.",needEmail:"Primero introduce tu correo electrónico.",resetSent:"Te hemos enviado un enlace para restablecer la contraseña.",welcome:"¡Bienvenido de nuevo!",created:"Cuenta creada.",confirmMail:"Casi listo: confirma tu correo electrónico mediante el enlace del mensaje.",
+needLoginInq:"Inicia sesión para enviar una consulta.",inqFail:"Error al enviar la consulta: ",inqOk:"Consulta enviada.",needLoginNew:"Inicia sesión para enviar un anuncio.",tooMany:"Las participaciones libres no pueden superar el total.",newFail:"Error al crear el anuncio: ",newOk:"Anuncio enviado. Aparecerá tras nuestra revisión.",delAsk:"¿Eliminar este anuncio?",deleted:"Anuncio eliminado.",noSb:"No se pudo cargar la conexión con Supabase."},
+ru:{sub:"Эксклюзивная площадка для сообществ совладельцев воздушных судов: продавцы находят совладельцев, покупатели находят подходящую долю.",
+notice:"BaronAir выступает исключительно как посредник. Мы не являемся стороной договора или участником сообщества совладельцев и не составляем договоры. Новые объявления проверяются перед публикацией.",
+search:"Поиск",searchPh:"Модель, местоположение …",cat:"Категория",all:"Все",c_Kolbenmotor:"Поршневой двигатель",max:"Макс. цена доли (€)",maxPh:"напр. 150000",sort:"Сортировка",s_p:"Цена по возрастанию",s_pd:"Цена по убыванию",s_f:"Свободные доли",
+newBtn:"+ Разместить долю",myL:"Мои объявления",myI:"Запросы",
+login:"Войти",register:"Регистрация",createT:"Создать аккаунт",noAcc:"Нет аккаунта? Зарегистрироваться",hasAcc:"Уже есть аккаунт? Войти",forgot:"Забыли пароль?",logout:"Выйти",
+name:"Имя",email:"Эл. почта",pw:"Пароль (мин. 8 символов)",cancel:"Отмена",
+inqPh:"Сообщение сообществу совладельцев (опыт полётов, лицензия, ожидания)",inqSend:"Отправить запрос",contact:"Контакт",
+newT:"Разместить долю",nModel:"Модель (напр. Piper M600)",nLoc:"Местоположение (ICAO, напр. EDFE)",nYear:"Год выпуска",nPrice:"Цена за долю (€)",nFree:"Свободные доли",nTotal:"Всего долей",nCost:"Постоянные расходы/мес. на долю (€)",nDesc:"Описание сообщества совладельцев",nSubmit:"Отправить на проверку",
+perShare:"за долю",freeOf:"свободно {f} из {t} долей",lLoc:"Местоположение",lYear:"Год выпуска",lCost:"Постоянные расходы",perMonth:"/мес.",lShare:"Доля",sendInq:"Отправить запрос",
+empty:"Объявлений пока нет.",noMine:"Вы ещё не подали ни одного объявления.",noInq:"Запросов пока нет.",del:"Удалить",sent:"Отправлено",recv:"Получено",
+st_pending:"на проверке",st_approved:"опубликовано",st_rejected:"отклонено",imprint:"Выходные данные",
+eLoad:"Не удалось загрузить объявления: ",bye:"Вы вышли из аккаунта.",needEmail:"Сначала введите адрес электронной почты.",resetSent:"Мы отправили вам ссылку для сброса пароля.",welcome:"С возвращением!",created:"Аккаунт создан.",confirmMail:"Почти готово: подтвердите адрес электронной почты по ссылке в письме.",
+needLoginInq:"Войдите, чтобы отправить запрос.",inqFail:"Не удалось отправить запрос: ",inqOk:"Запрос отправлен.",needLoginNew:"Войдите, чтобы подать объявление.",tooMany:"Свободных долей не может быть больше, чем всего долей.",newFail:"Не удалось создать объявление: ",newOk:"Объявление отправлено. Оно появится после проверки.",delAsk:"Удалить это объявление?",deleted:"Объявление удалено.",noSb:"Не удалось загрузить подключение к Supabase."}
+};
+let lang="de";
+try{const s=localStorage.getItem("lang");if(s&&L[s])lang=s;else{const n=(navigator.language||"de").slice(0,2);if(L[n])lang=n}}catch(_){}
+const t=k=>L[lang][k]??L.de[k]??k;
+
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const eur=n=>Number(n).toLocaleString(LOC[lang])+" €";
+const date=d=>new Date(d).toLocaleDateString(LOC[lang]);
+let sb,user=null,items=[],cur=null,mode="login";
+
+function toast(m,err){const e=$("#toast");e.textContent=m;e.className="toast show"+(err?" err":"");clearTimeout(toast.t);toast.t=setTimeout(()=>e.className="toast",5000)}
+document.querySelectorAll("[data-close]").forEach(b=>b.onclick=()=>b.closest("dialog").close());
+
+function setAuthTexts(){
+ $("#aT").textContent=mode==="login"?t("login"):t("createT");
+ $("#aGo").textContent=mode==="login"?t("login"):t("register");
+ $("#aSw").textContent=mode==="login"?t("noAcc"):t("hasAcc")}
+function applyLang(){
+ document.documentElement.lang=lang;$("#lang").value=lang;
+ document.title="BaronAir Fractional Ownership";
+ document.querySelectorAll("[data-t]").forEach(e=>e.textContent=t(e.dataset.t));
+ document.querySelectorAll("[data-p]").forEach(e=>e.placeholder=t(e.dataset.p));
+ setAuthTexts();updateAuth();render();loadMine();
+ if($("#dInq").open&&cur)$("#iT").textContent=cur.model+" · "+eur(cur.price_eur)}
+$("#lang").onchange=e=>{lang=e.target.value;try{localStorage.setItem("lang",lang)}catch(_){}applyLang()};
+
+async function loadListings(){
+ const {data,error}=await sb.from("listings").select("*").eq("status","approved").order("created_at",{ascending:false});
+ if(error)return toast(t("eLoad")+error.message,1);
+ items=data;render();
+}
+function render(){
+ const q=$("#q").value.toLowerCase(),c=$("#cat").value,mx=+$("#max").value||Infinity,s=$("#sort").value;
+ const r=items.filter(x=>(!c||x.category===c)&&x.price_eur<=mx&&(x.model+" "+x.location).toLowerCase().includes(q));
+ r.sort((a,b)=>s==="p"?a.price_eur-b.price_eur:s==="pd"?b.price_eur-a.price_eur:b.shares_free-a.shares_free);
+ const pct=n=>(100/n).toLocaleString(LOC[lang],{minimumFractionDigits:1,maximumFractionDigits:1});
+ $("#grid").innerHTML=r.length?r.map(x=>`<article class="card"><div><span class="tag">${esc(L[lang]["c_"+x.category]||x.category)}</span></div>
+ <h3>${esc(x.model)}</h3><div class="price">${eur(x.price_eur)} <small style="font-size:.8rem;color:var(--mute);font-weight:400">${t("perShare")}</small></div>
+ <div class="free">${t("freeOf").replace("{f}",x.shares_free).replace("{t}",x.shares_total)}</div>
+ <div class="meta"><span>${t("lLoc")}<br><b>${esc(x.location)}</b></span><span>${t("lYear")}<br><b>${x.year||"–"}</b></span>
+ <span>${t("lCost")}<br><b>${eur(x.monthly_cost_eur)}${t("perMonth")}</b></span><span>${t("lShare")}<br><b>${pct(x.shares_total)} %</b></span></div>
+ <p style="margin:0;font-size:.9rem;color:var(--mute)">${esc(x.description)}</p>
+ <div class="row"><button data-i="${x.id}">${t("sendInq")}</button></div></article>`).join(""):`<div class="empty" style="grid-column:1/-1">${t("empty")}</div>`;
+}
+["#q","#cat","#max","#sort"].forEach(s=>$(s).addEventListener("input",render));
+
+/* ---------- Konto ---------- */
+function updateAuth(){
+ $("#authBox").innerHTML=user?`${esc(user.user_metadata?.display_name||user.email)} <button class="ghost" data-a="out">${t("logout")}</button>`:`<button data-a="in">${t("login")}</button>`;
+ $("#mine").hidden=!user;
+}
+$("#authBox").addEventListener("click",async e=>{const a=e.target.dataset.a;
+ if(a==="in")openAuth("login");
+ if(a==="out"){await sb.auth.signOut();toast(t("bye"))}});
+function openAuth(m){mode=m;setAuthTexts();
+ $("#aN").hidden=m==="login";$("#aN").required=m!=="login";
+ $("#aP").autocomplete=m==="login"?"current-password":"new-password";
+ $("#dAuth").showModal()}
+$("#aSw").onclick=()=>{mode=mode==="login"?"register":"login";setAuthTexts();
+ $("#aN").hidden=mode==="login";$("#aN").required=mode!=="login";
+ $("#aP").autocomplete=mode==="login"?"current-password":"new-password"};
+$("#aRs").onclick=async()=>{const e=$("#aE").value.trim();
+ if(!e)return toast(t("needEmail"),1);
+ const {error}=await sb.auth.resetPasswordForEmail(e,{redirectTo:location.origin});
+ error?toast(error.message,1):toast(t("resetSent"))};
+$("#fAuth").addEventListener("submit",async e=>{e.preventDefault();
+ const email=$("#aE").value.trim(),password=$("#aP").value;
+ if(mode==="login"){
+  const {error}=await sb.auth.signInWithPassword({email,password});
+  if(error)return toast(error.message,1);
+  $("#dAuth").close();toast(t("welcome"));
+ }else{
+  const {data,error}=await sb.auth.signUp({email,password,options:{data:{display_name:$("#aN").value.trim()},emailRedirectTo:location.origin}});
+  if(error)return toast(error.message,1);
+  $("#dAuth").close();
+  toast(data.session?t("created"):t("confirmMail"));
+ }
+ $("#fAuth").reset()});
+
+/* ---------- Inserate & Anfragen ---------- */
+$("#grid").addEventListener("click",e=>{const b=e.target.closest("[data-i]");if(!b)return;
+ cur=items.find(x=>x.id==b.dataset.i);
+ if(!user){toast(t("needLoginInq"));return openAuth("login")}
+ $("#iT").textContent=cur.model+" · "+eur(cur.price_eur);$("#dInq").showModal()});
+$("#fInq").addEventListener("submit",async e=>{e.preventDefault();
+ const message=$("#iM").value.trim()+"\n\n"+t("contact")+": "+user.email;
+ const {error}=await sb.from("inquiries").insert({listing_id:cur.id,message});
+ if(error)return toast(t("inqFail")+error.message,1);
+ $("#dInq").close();$("#fInq").reset();toast(t("inqOk"));loadMine()});
+$("#newBtn").onclick=()=>{if(!user){toast(t("needLoginNew"));return openAuth("login")}$("#dNew").showModal()};
+$("#fNew").addEventListener("submit",async e=>{e.preventDefault();const g=i=>$(i).value;
+ const tt=+g("#nT"),f=+g("#nF");
+ if(f>tt)return toast(t("tooMany"),1);
+ const {error}=await sb.from("listings").insert({model:g("#nM"),category:g("#nC"),location:g("#nL"),year:+g("#nY")||null,price_eur:+g("#nP"),shares_free:f,shares_total:tt,monthly_cost_eur:+g("#nK"),description:g("#nD")});
+ if(error)return toast(t("newFail")+error.message,1);
+ $("#dNew").close();$("#fNew").reset();toast(t("newOk"));loadMine()});
+
+async function loadMine(){
+ if(!user||!sb)return;
+ const [l,i]=await Promise.all([
+  sb.from("listings").select("*").eq("owner_id",user.id).order("created_at",{ascending:false}),
+  sb.from("inquiries").select("*,listings(model)").order("created_at",{ascending:false})]);
+ $("#myL").innerHTML=(l.data||[]).length?l.data.map(x=>`<div class="item"><b>${esc(x.model)}</b> · ${eur(x.price_eur)} · <span class="st">${t("st_"+x.status)!=="st_"+x.status?t("st_"+x.status):esc(x.status)}</span>
+  <button class="link" data-del="${x.id}" style="float:right">${t("del")}</button></div>`).join(""):`<div class="empty">${t("noMine")}</div>`;
+ $("#myI").innerHTML=(i.data||[]).length?i.data.map(x=>`<div class="item"><small>${x.sender_id===user.id?t("sent"):t("recv")} · ${date(x.created_at)} · ${esc(x.listings?.model||"")}</small><br>${esc(x.message).replace(/\n/g,"<br>")}</div>`).join(""):`<div class="empty">${t("noInq")}</div>`;
+}
+$("#myL").addEventListener("click",async e=>{const id=e.target.dataset.del;
+ if(!id||!confirm(t("delAsk")))return;
+ const {error}=await sb.from("listings").delete().eq("id",id);
+ error?toast(error.message,1):(toast(t("deleted")),loadMine(),loadListings())});
+
+/* ---------- Start ---------- */
+applyLang();
+if(!window.supabase){toast(t("noSb"),1)}
+else{
+ sb=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+ sb.auth.onAuthStateChange((_e,session)=>{user=session?.user||null;updateAuth();loadMine()});
+ loadListings();
+}
+</script>
+</body>
+</html>
